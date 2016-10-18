@@ -1,0 +1,24 @@
+{{ define "content" }}
+<div>
+
+    <h1 style="align: center;">Таблица</h1>
+
+    <table id="users" class="table text-center">
+        <tr><th style="text-align: center;">Имя</th>
+            <th style="text-align: center;">Фамилия</th>
+            <th style="text-align: center;">Дата рождения</th>
+            <th style="text-align: center;">Адрес</th>
+            <th style="text-align: center;">Телефон</th></tr>
+    </table>
+
+</div>
+<script>
+    $('#users').append(function(users){
+        rows = ""
+        for (var i = 0; i < users.length; ++i) {
+            rows += '<tr class="h6"><td>' + users[i]["name"] + '</td><td>' + users[i]["family"] + '</td><td>' +  users[i]["birth_day"] + '</td><td>' +  users[i]["address"] + '</td><td>' +  users[i]["phone"] + '</td></tr>'
+        }
+        return rows
+    }({{ .Users }}))
+</script>
+{{ end }}
