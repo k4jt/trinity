@@ -65,4 +65,10 @@ var routes = []Route{
 		"/",
 		Index,
 	},
+	{
+		"AddUser",
+		"POST",
+		"/",
+		AddUser,
+	},
 }

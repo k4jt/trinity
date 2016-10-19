@@ -101,6 +101,7 @@ func (s *Store) GetAllUsers() (users []User, err error) {
 			if err := json.Unmarshal(val, &u); err != nil {
 				return fmt.Errorf("Error unmarshal user: %v", err)
 			}
+			u.BirthDay = u.BirthDayFull.Format("02-01-2006")
 			users = append(users, u)
 			return nil
 		})

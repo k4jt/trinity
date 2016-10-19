@@ -1,22 +1,60 @@
 {{ define "content" }}
 <div>
 
-    <h1 style="align: center;">Таблица</h1>
+    <button class="btn add_button" data-toggle="modal" data-target="#createUser">+</button>
 
-    <table id="users" class="table text-center">
-        <tr><th style="text-align: center;">Имя</th>
-            <th style="text-align: center;">Фамилия</th>
-            <th style="text-align: center;">Дата рождения</th>
-            <th style="text-align: center;">Адрес</th>
-            <th style="text-align: center;">Телефон</th></tr>
-    </table>
+    <div class="modal fade" id="createUser" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Create User</h4>
+                </div>
+                <div class="modal-body">
+
+                    <form role="form" action="/" method="post">
+                        <div class="form-group">
+                            <input type="text" class="form-control" id="name" name="name" placeholder="Имя">
+                        </div>
+                        <div class="form-group">
+                            <input type="text" class="form-control" id="family" name="family" placeholder="Фамилия">
+                        </div>
+                        <div class="form-group">
+                            <input type="text" class="form-control" id="birth_day" name="birth_day" placeholder="Дата рождения: dd-mm-yyyy">
+                        </div>
+                        <div class="form-group">
+                            <input type="text" class="form-control" id="address" name="address" placeholder="Адрес">
+                        </div>
+                        <div class="form-group">
+                            <input type="text" class="form-control" id="phone" name="phone" placeholder="Телефон">
+                        </div>
+
+                        <button type="submit" class="btn btn-default">Добавить</button>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1 style="align: center;">Таблица</h1>
+        <table id="users" class="table text-center table-striped">
+            <tr><th style="text-align: center;">#</th>
+                <th style="text-align: center;">Имя</th>
+                <th style="text-align: center;">Фамилия</th>
+                <th style="text-align: center;">Дата рождения</th>
+                <th style="text-align: center;">Адрес</th>
+                <th style="text-align: center;">Телефон</th></tr>
+        </table>
+    </div>
 
 </div>
 <script>
     $('#users').append(function(users){
         rows = ""
         for (var i = 0; i < users.length; ++i) {
-            rows += '<tr class="h6"><td>' + users[i]["name"] + '</td><td>' + users[i]["family"] + '</td><td>' +  users[i]["birth_day"] + '</td><td>' +  users[i]["address"] + '</td><td>' +  users[i]["phone"] + '</td></tr>'
+            rows += '<tr class="h6"><td>' + (i + 1) + '</td><td>' + users[i]["name"] + '</td><td>' + users[i]["family"] + '</td><td>' +  users[i]["birth_day"] + '</td><td>' +  users[i]["address"] + '</td><td>' +  users[i]["phone"].join(", ") + '</td></tr>'
         }
         return rows
     }({{ .Users }}))
