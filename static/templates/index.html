@@ -38,19 +38,47 @@
     </div>
 
     <div class="container">
-        <h1 style="align: center;">Таблица</h1>
+
+        <div class="input-group-lg" style="padding: 20px;">
+            <input id="search" name="search" type="text" class="form-control" placeholder="..."/>
+        </div>
+
         <table id="users" class="table text-center table-striped">
-            <tr><th style="text-align: center;">#</th>
-                <th style="text-align: center;">Имя</th>
-                <th style="text-align: center;">Фамилия</th>
-                <th style="text-align: center;">Дата рождения</th>
-                <th style="text-align: center;">Адрес</th>
-                <th style="text-align: center;">Телефон</th></tr>
+
         </table>
     </div>
 
 </div>
 <script>
+
+    var head = '<tr><th style="text-align: center;">#</th>' +
+               '<th style="text-align: center;">Имя</th>' +
+               '<th style="text-align: center;">Фамилия</th>' +
+               '<th style="text-align: center;">Дата рождения</th>' +
+               '<th style="text-align: center;">Адрес</th>' +
+               '<th style="text-align: center;">Телефон</th></tr>'
+    $('#users').append(head)
+
+
+    $('#search').keypress(function (e) {
+        if (e.which == 13) {
+            $.get('/search/' + $('#search').val(), function(data) {
+                $('#users').empty()
+
+                $('#users').append(head)
+                data.every(function(u, i, arr) {
+                    $('#users').append('<tr class="h6"><td>' + (i + 1) + '</td><td>' + u["name"] + '</td><td>' + u["family"] + '</td><td>' +  u["birth_day"] + '</td><td>' +  u["address"] + '</td><td>' +  u["phone"].join(", ") + '</td></tr>');
+                    return true;
+                })
+            }).fail(function (jqXHR, textStatus, error) {
+                $('#users').empty()
+            });
+
+
+        }
+    });
+
+
     $('#users').append(function(users){
         rows = ""
         for (var i = 0; i < users.length; ++i) {

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	log "github.com/Sirupsen/logrus"
+	"github.com/gorilla/mux"
 	"github.com/k4jt/trinity/store"
 	"html/template"
 	"io/ioutil"
@@ -69,6 +70,38 @@ func AddUser(ctx *Context, w http.ResponseWriter, r *http.Request) {
 	ctx.DB.CreateUser(&u)
 
 	Index(ctx, w, r)
+}
+
+func Search(ctx *Context, w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	vars := mux.Vars(r)
+	q := vars["q"]
+	log.Info("q:", q)
+
+	q = strings.TrimSpace(q)
+	q = strings.ToLower(q)
+
+	users, _ := ctx.DB.GetAllUsers()
+
+	if len(q) > 0 {
+		filtered := []store.User{}
+		for _, u := range users {
+			if u.Contains(q) {
+				filtered = append(filtered, u)
+			}
+		}
+		users = filtered
+	}
+
+	if err := json.NewEncoder(w).Encode(users); err != nil {
+		log.Error("Error json encode users:", err)
+	}
+
+	//content, _ := ioutil.ReadAll(r.Body)
+	//log.Println("Raw POST content: ", string(content))
+	//params := decodeParams(content)
+	//log.Info("params: ", params)
+
 }
 
 func render(ctx *Context, w http.ResponseWriter, filenames ...string) {

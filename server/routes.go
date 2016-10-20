@@ -71,4 +71,16 @@ var routes = []Route{
 		"/",
 		AddUser,
 	},
+	{
+		"Search",
+		"GET",
+		"/search",
+		Search,
+	},
+	{
+		"Search",
+		"GET",
+		"/search/{q}",
+		Search,
+	},
 }
