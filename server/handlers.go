@@ -13,6 +13,7 @@ import (
 	"net/url"
 	"path"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -70,6 +71,25 @@ func AddUser(ctx *Context, w http.ResponseWriter, r *http.Request) {
 	ctx.DB.CreateUser(&u)
 
 	Index(ctx, w, r)
+}
+
+func DeleteUser(ctx *Context, w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	vars := mux.Vars(r)
+	id := vars["id"]
+	log.Info("id:", id)
+	i32, err := strconv.Atoi(id)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	if err := ctx.DB.DeleteUser(uint64(i32)); err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	w.WriteHeader(http.StatusFound)
 }
 
 func Search(ctx *Context, w http.ResponseWriter, r *http.Request) {

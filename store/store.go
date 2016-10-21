@@ -40,6 +40,13 @@ func (s *Store) Close() {
 	log.Info("close db connection")
 }
 
+func (s *Store) DeleteUser(id uint64) error {
+	return s.db.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(BucketUsers))
+		return b.Delete(itob(id))
+	})
+}
+
 // CreateUser saves u to the store. The new user ID is set on u once the data is persisted.
 func (s *Store) CreateUser(u *User) error {
 	return s.db.Update(func(tx *bolt.Tx) error {

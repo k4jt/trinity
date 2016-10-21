@@ -56,35 +56,64 @@
                '<th style="text-align: center;">Фамилия</th>' +
                '<th style="text-align: center;">Дата рождения</th>' +
                '<th style="text-align: center;">Адрес</th>' +
-               '<th style="text-align: center;">Телефон</th></tr>'
+               '<th style="text-align: center;">Телефон</th><th></th></tr>'
     $('#users').append(head)
 
+    function addRemoveBtn(u) {
+        return '<a href="#" class="remove_btn" value="' + u.id + '" name="' + u.name + ' ' + u.family + '">' +
+               '<span class="glyphicon glyphicon-remove"></span></a>'
+    }
+
+
+    function search() {
+        $.get('/search/' + $('#search').val(), function(data) {
+            $('#users').empty()
+
+            $('#users').append(head)
+            data.every(function(u, i, arr) {
+                $('#users').append('<tr class="h6"><td>' + (i + 1) + '</td><td>' + u.name + '</td><td>' + u.family +
+                                   '</td><td>' +  u.birth_day + '</td><td>' +  u.address + '</td><td>' +
+                                   u.phone.join(", ") + '</td><td>' + ' <span class="glyphicon glyphicon-pencil"></span>' +
+                                   addRemoveBtn(u) + '</td></tr>');
+                return true;
+            })
+        }).fail(function (jqXHR, textStatus, error) {
+            $('#users').empty()
+        });
+    }
 
     $('#search').keypress(function (e) {
         if (e.which == 13) {
-            $.get('/search/' + $('#search').val(), function(data) {
-                $('#users').empty()
-
-                $('#users').append(head)
-                data.every(function(u, i, arr) {
-                    $('#users').append('<tr class="h6"><td>' + (i + 1) + '</td><td>' + u["name"] + '</td><td>' + u["family"] + '</td><td>' +  u["birth_day"] + '</td><td>' +  u["address"] + '</td><td>' +  u["phone"].join(", ") + '</td></tr>');
-                    return true;
-                })
-            }).fail(function (jqXHR, textStatus, error) {
-                $('#users').empty()
-            });
-
-
+            search();
         }
     });
+
 
 
     $('#users').append(function(users){
         rows = ""
         for (var i = 0; i < users.length; ++i) {
-            rows += '<tr class="h6"><td>' + (i + 1) + '</td><td>' + users[i]["name"] + '</td><td>' + users[i]["family"] + '</td><td>' +  users[i]["birth_day"] + '</td><td>' +  users[i]["address"] + '</td><td>' +  users[i]["phone"].join(", ") + '</td></tr>'
+            rows += '<tr class="h6"><td>' + (i + 1) + '</td><td>' + users[i].name + '</td><td>' + users[i].family +
+                    '</td><td>' +  users[i].birth_day + '</td><td>' +  users[i].address + '</td><td>' +
+                    users[i].phone.join(", ") + '</td><td>' +
+                    '<span class="glyphicon glyphicon-pencil"></span> ' +
+                    addRemoveBtn(users[i]) + '</td></tr>'
         }
         return rows
     }({{ .Users }}))
+
+    $('.remove_btn').click(function (e) {
+        id = this.attributes.getNamedItem('value').value;
+        name = this.attributes.getNamedItem('name').value;
+        if(confirm("Вы уверены, что хотите удалить '" + name + "'?")) {
+            $.ajax({
+                url: '/' + id,
+                type: 'DELETE'
+            }).always(function(data) {
+                search();
+            });
+        }
+    })
+
 </script>
 {{ end }}
