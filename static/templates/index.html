@@ -1,14 +1,15 @@
 {{ define "content" }}
 <div>
 
-    <button class="btn add_button" data-toggle="modal" data-target="#createUser">+</button>
+    <!--data-toggle="modal" data-target="#createUser"-->
+    <button id="addBtn" class="btn add_button">+</button>
 
-    <div class="modal fade" id="createUser" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal fade" id="userForm" tabindex="-1" role="dialog" aria-labelledby="modalLabel">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="myModalLabel">Create User</h4>
+                    <h4 class="modal-title" id="modalLabel"></h4>
                 </div>
                 <div class="modal-body">
 
@@ -28,8 +29,8 @@
                         <div class="form-group">
                             <input type="text" class="form-control" id="phone" name="phone" placeholder="Телефон">
                         </div>
-
-                        <button type="submit" class="btn btn-default">Добавить</button>
+                        <input hidden name="id" id="id">
+                        <button type="submit" class="btn btn-default" id="formBtn"></button>
                     </form>
 
                 </div>
@@ -51,6 +52,21 @@
 </div>
 <script>
 
+    $('#addBtn').click(function (e) {
+        $('#modalLabel').html('Добавить запись')
+        $('#formBtn').html('Добавить')
+
+        $('#name').val('')
+        $('#family').val('')
+        $('#birth_day').val('')
+        $('#address').val('')
+        $('#phone').val('')
+        $('#id').val('')
+
+        $('#userForm').modal()
+    })
+
+
     var head = '<tr><th style="text-align: center;">#</th>' +
                '<th style="text-align: center;">Имя</th>' +
                '<th style="text-align: center;">Фамилия</th>' +
@@ -60,10 +76,16 @@
     $('#users').append(head)
 
     function addRemoveBtn(u) {
-        return '<a href="#" class="remove_btn" value="' + u.id + '" name="' + u.name + ' ' + u.family + '">' +
-               '<span class="glyphicon glyphicon-remove"></span></a>'
+        return '<button class="btn remove_btn small_btn" value="' + u.id + '" name="' + u.name + ' ' + u.family + '"><span class="glyphicon glyphicon-remove"></span></button>'
+        //return '<a href="#" class="remove_btn" value="' + u.id + '" name="' + u.name + ' ' + u.family + '">' +
+        //       '<span class="glyphicon glyphicon-remove"></span></a>'
     }
 
+    function addEditBtn(u) {
+        return '<button class="btn edit_btn small_btn" value="' + u.id + '"><span class="glyphicon glyphicon-pencil"></span></button>'
+        //return '<a href="#" class="edit_btn" value="' + u.id + '">' +
+        //       '<span class="glyphicon glyphicon-pencil"></span></a>'
+    }
 
     function search() {
         $.get('/search/' + $('#search').val(), function(data) {
@@ -73,8 +95,7 @@
             data.every(function(u, i, arr) {
                 $('#users').append('<tr class="h6"><td>' + (i + 1) + '</td><td>' + u.name + '</td><td>' + u.family +
                                    '</td><td>' +  u.birth_day + '</td><td>' +  u.address + '</td><td>' +
-                                   u.phone.join(", ") + '</td><td>' + ' <span class="glyphicon glyphicon-pencil"></span>' +
-                                   addRemoveBtn(u) + '</td></tr>');
+                                   u.phone.join(", ") + '</td><td>' + addEditBtn(u) + addRemoveBtn(u) + '</td></tr>');
                 return true;
             })
         }).fail(function (jqXHR, textStatus, error) {
@@ -96,8 +117,7 @@
             rows += '<tr class="h6"><td>' + (i + 1) + '</td><td>' + users[i].name + '</td><td>' + users[i].family +
                     '</td><td>' +  users[i].birth_day + '</td><td>' +  users[i].address + '</td><td>' +
                     users[i].phone.join(", ") + '</td><td>' +
-                    '<span class="glyphicon glyphicon-pencil"></span> ' +
-                    addRemoveBtn(users[i]) + '</td></tr>'
+                    addEditBtn(users[i]) + addRemoveBtn(users[i]) + '</td></tr>'
         }
         return rows
     }({{ .Users }}))
@@ -107,12 +127,33 @@
         name = this.attributes.getNamedItem('name').value;
         if(confirm("Вы уверены, что хотите удалить '" + name + "'?")) {
             $.ajax({
-                url: '/' + id,
+                url: '/users/' + id,
                 type: 'DELETE'
             }).always(function(data) {
                 search();
             });
         }
+    })
+
+    $('.edit_btn').click(function (e) {
+        id = this.attributes.getNamedItem('value').value;
+        $.ajax({
+            url: '/users/' + id,
+            type: 'GET'
+        }).always(function(u) {
+
+            $('#name').val(u.name)
+            $('#family').val(u.family)
+            $('#birth_day').val(u.birth_day)
+            $('#address').val(u.address)
+            $('#phone').val(u.phone)
+            $('#id').val(u.id)
+
+            $('#modalLabel').html('Изменить запись')
+            $('#formBtn').html('Сохранить')
+            $('#userForm').modal()
+        });
+
     })
 
 </script>

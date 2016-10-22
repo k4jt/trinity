@@ -68,7 +68,18 @@ func AddUser(ctx *Context, w http.ResponseWriter, r *http.Request) {
 		Phone:        []string{phone},
 	}
 
-	ctx.DB.CreateUser(&u)
+	id, ok := params["id"].(string)
+	if ok {
+		val, err := strconv.Atoi(id)
+		if err != nil {
+			log.Errorf("Error parse id value: %v", err)
+			ok = false
+		} else {
+			u.ID = uint64(val)
+		}
+	}
+
+	ctx.DB.CreateUpdateUser(&u)
 
 	Index(ctx, w, r)
 }
@@ -90,6 +101,29 @@ func DeleteUser(ctx *Context, w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusFound)
+}
+
+func GetUser(ctx *Context, w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	vars := mux.Vars(r)
+	id := vars["id"]
+	log.Info("id:", id)
+	i32, err := strconv.Atoi(id)
+	if err != nil {
+		//w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	u, err := ctx.DB.GetUser(uint64(i32))
+	if err != nil {
+		//w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	//w.WriteHeader(http.StatusFound)
+	if err := json.NewEncoder(w).Encode(u); err != nil {
+		log.Error("Error json encode user:", err)
+	}
 }
 
 func Search(ctx *Context, w http.ResponseWriter, r *http.Request) {

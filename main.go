@@ -13,7 +13,6 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 )
 
 var version string // set by the compiler
@@ -37,26 +36,6 @@ func run(c *cli.Context) error {
 
 	db := store.Open()
 	defer db.Close()
-
-	t, e := time.Parse("02.01.2006", "13.06.1991")
-	if e != nil {
-		log.Error("Parse time error:", e)
-	}
-	vovka := store.User{
-		Name:         "Владимир",
-		Family:       "Манило",
-		BirthDayFull: t,
-		Address:      "Бочарова 44, кв. 22",
-		Phone:        []string{"0639911835", "0951664408"},
-	}
-
-	db.CreateUser(&vovka)
-	users, err := db.GetAllUsers()
-	if err == nil {
-		for _, u := range users {
-			log.Info(u)
-		}
-	}
 
 	httpHandler := getHttpHandler(c, db)
 	go func() {

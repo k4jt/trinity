@@ -10,6 +10,7 @@ import (
 
 const (
 	BucketUsers = "users"
+	shortFormat = "02-01-2006"
 )
 
 type Store struct {
@@ -48,16 +49,18 @@ func (s *Store) DeleteUser(id uint64) error {
 }
 
 // CreateUser saves u to the store. The new user ID is set on u once the data is persisted.
-func (s *Store) CreateUser(u *User) error {
+func (s *Store) CreateUpdateUser(u *User) error {
 	return s.db.Update(func(tx *bolt.Tx) error {
 		// Retrieve the users bucket.
 		// This should be created when the DB is first opened.
 		b := tx.Bucket([]byte(BucketUsers))
 
-		// Generate ID for the user.
-		// This returns an error only if the Tx is closed or not writable.
-		// That can't happen in an Update() call so I ignore the error check.
-		u.ID, _ = b.NextSequence()
+		if u.ID == 0 {
+			// Generate ID for the user.
+			// This returns an error only if the Tx is closed or not writable.
+			// That can't happen in an Update() call so I ignore the error check.
+			u.ID, _ = b.NextSequence()
+		}
 
 		// Marshal user data into bytes.
 		buf, err := json.Marshal(u)
@@ -89,7 +92,7 @@ func (s *Store) GetUser(id uint64) (u User, err error) {
 		if err := json.Unmarshal(val, &u); err != nil {
 			return fmt.Errorf("Error unmarshal user: %v", err)
 		}
-
+		u.BirthDay = u.BirthDayFull.Format(shortFormat)
 		return nil
 	})
 
@@ -108,7 +111,8 @@ func (s *Store) GetAllUsers() (users []User, err error) {
 			if err := json.Unmarshal(val, &u); err != nil {
 				return fmt.Errorf("Error unmarshal user: %v", err)
 			}
-			u.BirthDay = u.BirthDayFull.Format("02-01-2006")
+
+			u.BirthDay = u.BirthDayFull.Format(shortFormat)
 			users = append(users, u)
 			return nil
 		})

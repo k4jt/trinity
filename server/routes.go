@@ -71,16 +71,16 @@ var routes = []Route{
 		"/",
 		AddUser,
 	},
-	//{
-	//	"EditUser",
-	//	"PUT",
-	//	"/{id}",
-	//	EditUser,
-	//},
+	{
+		"GetUser",
+		"GET",
+		"/users/{id}",
+		GetUser,
+	},
 	{
 		"DeleteUser",
 		"DELETE",
-		"/{id}",
+		"/users/{id}",
 		DeleteUser,
 	},
 	{

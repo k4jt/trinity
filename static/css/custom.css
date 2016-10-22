@@ -21,6 +21,12 @@
     outline: none;
 }
 
+.small_btn {
+    background: transparent;
+    padding: 0px 6px;
+    border: 0px;
+}
+
 /*
 .add_button:hover {
     color: white;
