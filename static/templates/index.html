@@ -1,7 +1,5 @@
 {{ define "content" }}
 <div>
-
-    <!--data-toggle="modal" data-target="#createUser"-->
     <button id="addBtn" class="btn add_button">+</button>
 
     <div class="modal fade" id="userForm" tabindex="-1" role="dialog" aria-labelledby="modalLabel">
@@ -66,7 +64,6 @@
         $('#userForm').modal()
     })
 
-
     var head = '<tr><th style="text-align: center;">#</th>' +
                '<th style="text-align: center;">Имя</th>' +
                '<th style="text-align: center;">Фамилия</th>' +
@@ -77,14 +74,10 @@
 
     function addRemoveBtn(u) {
         return '<button class="btn remove_btn small_btn" value="' + u.id + '" name="' + u.name + ' ' + u.family + '"><span class="glyphicon glyphicon-remove"></span></button>'
-        //return '<a href="#" class="remove_btn" value="' + u.id + '" name="' + u.name + ' ' + u.family + '">' +
-        //       '<span class="glyphicon glyphicon-remove"></span></a>'
     }
 
     function addEditBtn(u) {
         return '<button class="btn edit_btn small_btn" value="' + u.id + '"><span class="glyphicon glyphicon-pencil"></span></button>'
-        //return '<a href="#" class="edit_btn" value="' + u.id + '">' +
-        //       '<span class="glyphicon glyphicon-pencil"></span></a>'
     }
 
     function search() {
@@ -98,6 +91,7 @@
                                    u.phone.join(", ") + '</td><td>' + addEditBtn(u) + addRemoveBtn(u) + '</td></tr>');
                 return true;
             })
+            actionHandler()
         }).fail(function (jqXHR, textStatus, error) {
             $('#users').empty()
         });
@@ -108,8 +102,6 @@
             search();
         }
     });
-
-
 
     $('#users').append(function(users){
         rows = ""
@@ -122,39 +114,44 @@
         return rows
     }({{ .Users }}))
 
-    $('.remove_btn').click(function (e) {
-        id = this.attributes.getNamedItem('value').value;
-        name = this.attributes.getNamedItem('name').value;
-        if(confirm("Вы уверены, что хотите удалить '" + name + "'?")) {
+    function actionHandler() {
+
+        $('.remove_btn').click(function (e) {
+            id = this.attributes.getNamedItem('value').value;
+            name = this.attributes.getNamedItem('name').value;
+            if(confirm("Вы уверены, что хотите удалить '" + name + "'?")) {
+                $.ajax({
+                    url: '/users/' + id,
+                    type: 'DELETE'
+                }).always(function(data) {
+                    search();
+                });
+            }
+        })
+
+        $('.edit_btn').click(function (e) {
+            id = this.attributes.getNamedItem('value').value;
             $.ajax({
                 url: '/users/' + id,
-                type: 'DELETE'
-            }).always(function(data) {
-                search();
+                type: 'GET'
+            }).always(function(u) {
+
+                $('#name').val(u.name)
+                $('#family').val(u.family)
+                $('#birth_day').val(u.birth_day)
+                $('#address').val(u.address)
+                $('#phone').val(u.phone)
+                $('#id').val(u.id)
+
+                $('#modalLabel').html('Изменить запись')
+                $('#formBtn').html('Сохранить')
+                $('#userForm').modal()
             });
-        }
-    })
 
-    $('.edit_btn').click(function (e) {
-        id = this.attributes.getNamedItem('value').value;
-        $.ajax({
-            url: '/users/' + id,
-            type: 'GET'
-        }).always(function(u) {
+        })
+    }
 
-            $('#name').val(u.name)
-            $('#family').val(u.family)
-            $('#birth_day').val(u.birth_day)
-            $('#address').val(u.address)
-            $('#phone').val(u.phone)
-            $('#id').val(u.id)
-
-            $('#modalLabel').html('Изменить запись')
-            $('#formBtn').html('Сохранить')
-            $('#userForm').modal()
-        });
-
-    })
+    actionHandler()
 
 </script>
 {{ end }}
