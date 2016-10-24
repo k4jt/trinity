@@ -1,6 +1,5 @@
 .PHONY: build clean package generate fmt serve
-# VERSION := $(shell git describe --always)
-VERSION := 0.1
+VERSION := $(shell git describe --always)
 GOOS ?= darwin
 GOARCH ?= amd64
 
@@ -18,7 +17,7 @@ package: clean build
 	@echo "Creating package for $(GOOS) $(GOARCH)"
 	@mkdir -p dist/$(VERSION)
 	@cp build/* dist/$(VERSION)
-	@cd dist/$(VERSION) && tar -pczf ../trinity_$(VERSION)_$(GOOS)_$(GOARCH).tar.gz .
+	@cd dist/$(VERSION) && zip -r ../trinity_$(VERSION)_$(GOOS)_$(GOARCH).zip .
 	@rm -rf dist/$(VERSION)
 
 generate:
